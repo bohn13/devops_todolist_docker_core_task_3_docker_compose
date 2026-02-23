@@ -1,0 +1,34 @@
+services:
+  db:
+    build:
+      context: .
+      dockerfile: Dockerfile.mysql
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=1234
+      - MYSQL_DATABASE=app_db
+      - MYSQL_USER=app_user
+      - MYSQL_PASSWORD=1234
+    volumes:
+      - db-data:/var/lib/mysql
+    networks:
+      - db-data-network
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8000"
+    depends_on:
+      - db
+    networks:
+      - db-data-network
+    environment:
+      - DB_HOST=db
+    restart: unless-stopped
+volumes:
+  db-data:
+networks:
+  db-data-network:
+    driver: bridge
